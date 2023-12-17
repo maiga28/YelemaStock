@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,6 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',  # new
+    'main_apps.accounts',
+    'main_apps.gestion',
+    'main_apps.stock',
+    'django_admin_tailwind',
+    'rolepermissions',
+    
+    
 ]
 
 COMPRESS_ROOT = BASE_DIR / 'static'
@@ -122,9 +130,62 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
+COMPRESS_ROOT = BASE_DIR / 'static'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "node_modules/tailwindcss/base.css",  # Chemin vers les fichiers statiques de Tailwind CSS
+]
+
+
+COMPRESS_ENABLED = True
+
+STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
+# settings.py
+import os
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+]
+
+LOGIN_REDIRECT_URL = '/gestion:home/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL_ASSISTANT = '/dash_assistant/'
+#################################################################################
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL_COMPTABLE = '/dash_comptable/'
+##################################################################################
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL_GESTIONNAIRE = '/dash_gestionnaire/'
+# settings.py
+#AUTH_USER_MODEL = 'account.Admiuser'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from decouple import config
+
+# Utilisez le backend SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Configuration SMTP pour Gmail
+EMAIL_HOST = 'smtp.gmail.com'
+
+# settings.py
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'tdjangosite@gmail.com'
+EMAIL_HOST_PASSWORD = 'qhhb xfdd dbhb zemx '

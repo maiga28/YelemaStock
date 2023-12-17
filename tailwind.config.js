@@ -7,10 +7,21 @@ module.exports = {
   content: [
     './templates/**/**/*.html',
   
-    './node_modules/flowbite/**/*.js'
+    './node_modules/flowbite/**/*.js',
+    'node_modules/preline/dist/*.js',
   ],
 
   theme: {
+    container: {
+      padding: {
+        DEFAULT: '1rem',
+        sm: '2rem',
+        lg: '4rem',
+        xl: '5rem',
+        '2xl': '6rem',
+      },
+    },
+  
     spacing: {
       px: '1px',
       0: '0',
@@ -80,8 +91,17 @@ module.exports = {
       charts: true,
       forms: true,
       tooltips: true
-  }),
+    }),
+
+    require("@tailwindcss/forms")({
+      strategy: 'base', // only generate global styles
+      strategy: 'class', // only generate classes
+    }),
+    require('preline/plugin'),
     
   ],
+  modules: {
+    grid: true,
+  },
 }
 
