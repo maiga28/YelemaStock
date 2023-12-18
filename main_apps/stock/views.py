@@ -6,8 +6,6 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
-
-
 from django.shortcuts import render, redirect
 from .forms import ProduitForm,Produit_Modifier_Form  # Assurez-vous que l'import est correct
 

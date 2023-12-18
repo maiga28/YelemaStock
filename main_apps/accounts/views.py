@@ -20,6 +20,7 @@ from .forms import LoginForm  # Assurez-vous d'ajuster le chemin en fonction de 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from main_apps.stock.models import Produit,Stock
+
 User = get_user_model()
 
 def send_verification_email(request, user):
@@ -41,12 +42,6 @@ def send_verification_email(request, user):
 
     # Envoyez l'e-mail avec le lien de vérification unique
     send_mail(subject, message, from_email, [to_email], fail_silently=False)
-
-
-    
-#def activateEmail(request, user, to_email):
-#    messages.success(request, f'Dear <b>{user}</b>, please go to your email <b>{to_email}</b> inbox and click on\
-#       recieved activation link to confirm and complete the registration. <b>Note:</b> Check your spam folder. ')
 
 # Create your views here.
 def register(request):

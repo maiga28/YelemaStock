@@ -42,6 +42,14 @@ INSTALLED_APPS = [
     'main_apps.accounts',
     'main_apps.gestion',
     'main_apps.stock',
+    'main_apps.client',
+    'main_apps.facture',
+    'main_apps.fournisseur',
+    'main_apps.salaires',
+    'main_apps.GRH',
+    'main_apps.note_frais',
+    'main_apps.employer',
+    
     'django_admin_tailwind',
     'rolepermissions',
     

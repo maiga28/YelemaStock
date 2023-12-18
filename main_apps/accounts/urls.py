@@ -8,7 +8,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('logout/', views.logout, name='logout'),
 #   path('<str:user_id>/<str:token>/', views.verify_email, name='verify_email'),
-    path('verification/<str:uidb64>/<str:token>/', views.send_verification_email, name='email_verification'),
+    path('verification/<str:user>/<str:token>/', views.send_verification_email, name='email_verification'),
     path('accounts/<int:user_id>/<str:token>/', views.verify_email, name='verify_email'),
 ############################################################################################################################   
     path('dash_gestionnaire/', views.dash_gestionnaire, name='dash_gestionnaire'),
