@@ -26,9 +26,13 @@ class Produit(models.Model):
             self.slug = slugify(self.nom)
         super().save(*args, **kwargs)
 
+from django.db import models
+from main_apps.stock.models import Produit
+
 class Stock(models.Model):
     produit = models.OneToOneField(Produit, on_delete=models.CASCADE)
     quantite = models.IntegerField(
+        default=0,  # Vous pouvez ajuster la valeur par défaut selon vos besoins
         help_text="La quantité en stock"
     )
     type_mouvement = models.CharField(
@@ -43,7 +47,6 @@ class Stock(models.Model):
         ordering = ['-date_mouvement']
         verbose_name = "mouvement de stock"
         verbose_name_plural = "mouvements de stock"
-        
 
     def __str__(self):
         return f"{self.produit.nom} - Stock: {self.quantite}"
