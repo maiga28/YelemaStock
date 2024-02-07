@@ -1,17 +1,22 @@
 from django.urls import path
 from . import views
+from .views import verify_email
+from .views import custom_page_not_found
 
-app_name = 'accounts'  # Si vous utilisez un espace de noms
+
+from django.urls import path
+from .views import login_view, register, logout, verify_email, send_verification_email, custom_page_not_found
+
+app_name = 'accounts'
 
 urlpatterns = [
-    path('', views.login_view, name='login'),
-    path('register/', views.register, name='register'),
-    path('logout/', views.logout, name='logout'),
-#   path('<str:user_id>/<str:token>/', views.verify_email, name='verify_email'),
-    path('verification/<str:user>/<str:token>/', views.send_verification_email, name='email_verification'),
-    path('accounts/<int:user_id>/<str:token>/', views.verify_email, name='verify_email'),
-############################################################################################################################   
-    path('dash_gestionnaire/', views.dash_gestionnaire, name='dash_gestionnaire'),
-    path('dash_comptable/', views.dash_comptable, name='dash_comptable'),
-    path('dash_assistant/', views.dash_assistant, name='dash_assistant'),
+    path('', login_view, name='login'),
+    path('register/', register, name='register'),
+    path('logout/', logout, name='logout'),
+    path('verification/<str:user>/<str:token>/', send_verification_email, name='email_verification'),
+    path('verify_email/<str:user_id>/<slug:token>/', verify_email, name='verify_email'),
+    
+    # Ajoutez un pattern générique pour gérer les URL non correspondantes
+    path('<path:unknown_path>', custom_page_not_found),
 ]
+

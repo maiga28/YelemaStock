@@ -11,3 +11,13 @@ def team(request):
 
 def contact(request):
     return render(request, 'contact.html')
+
+
+
+from django.test import SimpleTestCase, override_settings
+
+def custom_page_not_found(request, unknown_path):
+    return render(request, 'gestion/404.html', {'unknown_path': unknown_path}, status=404)
+
+
+

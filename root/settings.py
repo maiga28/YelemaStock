@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,13 +57,20 @@ INSTALLED_APPS = [
     
 ]
 
+# settings.py
+ROLEPERMISSIONS_MODULE = 'main_apps.employer.roles'
+
+
 COMPRESS_ROOT = BASE_DIR / 'static'
 
 COMPRESS_ENABLED = True
 
 STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
 
+
+
 MIDDLEWARE = [
+    # ...
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -71,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'root.urls'
 
@@ -167,16 +176,23 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',
 ]
 
-LOGIN_REDIRECT_URL = '/gestion:home/'
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL_ASSISTANT = '/dash_assistant/'
-#################################################################################
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL_COMPTABLE = '/dash_comptable/'
-##################################################################################
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL_GESTIONNAIRE = '/dash_gestionnaire/'
+
 # settings.py
+
+LOGIN_URL = '/login/'
+
+# URL de redirection par défaut
+LOGIN_REDIRECT_URL = '/client:client_view/'
+
+# URL de redirection pour un assistant
+LOGIN_REDIRECT_URL_ASSISTANT = '/dash_assistant/'
+
+# URL de redirection pour un comptable
+LOGIN_REDIRECT_URL_COMPTABLE = '/dash_comptable/'
+
+# URL de redirection pour un gestionnaire
+LOGIN_REDIRECT_URL_GESTIONNAIRE = '/gestion:dash_gestionnaire/'
+
 #AUTH_USER_MODEL = 'account.Admiuser'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -195,5 +211,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+
 EMAIL_HOST_USER = 'tdjangosite@gmail.com'
 EMAIL_HOST_PASSWORD = 'qhhb xfdd dbhb zemx '

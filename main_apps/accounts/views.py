@@ -1,38 +1,26 @@
-from .forms import SignUpForm, LoginForm  # Assurez-vous d'importer le formulaire approprié depuis votre application
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.utils.encoding import force_str
-from django.contrib.auth.models import User
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth import authenticate, login, get_user_model
 from django.shortcuts import render, redirect, HttpResponse
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth import authenticate, login
-from .forms import LoginForm  # Replace '.forms' with the correct path to your LoginForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.urls import reverse
 from django.core.mail import send_mail
-from django.contrib.auth import get_user_model
 from django.http import HttpResponseNotFound
-from .forms import LoginForm  # Assurez-vous d'ajuster le chemin en fonction de la structure de votre projet
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required, user_passes_test
-from main_apps.stock.models import Produit,Stock
+from .forms import SignUpForm, LoginForm
 
 User = get_user_model()
 
 def send_verification_email(request, user):
     # Générez le token unique pour la vérification de l'e-mail
     token = default_token_generator.make_token(user)
-
     # Encodez l'ID utilisateur pour être utilisé dans l'URL
     uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-
     # Construisez l'URL de vérification avec le lien unique
     verification_url = request.build_absolute_uri(reverse('accounts:verify_email', args=[uidb64, token]))
-    
 
     # Personnalisez le contenu de l'e-mail de vérification avec le lien unique
     subject = 'Email Verification'
@@ -43,7 +31,20 @@ def send_verification_email(request, user):
     # Envoyez l'e-mail avec le lien de vérification unique
     send_mail(subject, message, from_email, [to_email], fail_silently=False)
 
-# Create your views here.
+@login_required
+def verify_email(request, user_id, token):
+    if request.user.email_verified:
+        # L'e-mail est déjà vérifié, redirigez l'utilisateur vers une page appropriée
+        return redirect('gestion:home')  # Remplacez 'home' par le nom de votre vue d'accueil
+
+    if request.method == 'POST':
+        # Marquer l'e-mail comme vérifié
+        request.user.email_verified = True
+        request.user.save()
+        return redirect('gestion:home')  # Remplacez 'home' par le nom de votre vue d'accueil
+
+    return HttpResponse(f"Verification for user {user_id} with token {token}")
+
 def register(request):
     msg = None
     success = False
@@ -80,26 +81,13 @@ def register(request):
 
     return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 
-User = get_user_model()
+# Dans views.py de main_apps/accounts
 
-@login_required
-def verify_email(request, user_id, *args, **kwargs):
-    # Function code here
-    if request.user.email_verified:
-        # L'e-mail est déjà vérifié, redirigez l'utilisateur vers une page appropriée
-        return redirect('gestion:home')  # Remplacez 'home' par le nom de votre vue d'accueil
-
-    if request.method == 'GET':
-        return render(request, 'account/verify_email.html')
-
-    elif request.method == 'POST':
-        # Marquer l'e-mail comme vérifié
-        request.user.email_verified = True
-        request.user.save()
-        return redirect('gestion:home')  # Remplacez 'home' par le nom de votre vue d'accueil
-
-# Dans votre vue d'inscription
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -115,45 +103,43 @@ def login_view(request):
             if user is not None:
                 login(request, user)
 
-                # Rediriger en fonction du groupe de l'utilisateur
-                if user.groups.filter(name='Gestionnaire').exists():
-                    return redirect("accounts:dash_gestionnaire")
-                elif user.groups.filter(name='Comptable').exists():
-                    return redirect("accounts:dash_comptable")
-                elif user.groups.filter(name='Assistant').exists():
-                    return redirect("accounts:dash_assistant")
-                else:
-                    # Redirection par défaut s'il n'appartient à aucun groupe spécifique
+                # Affichez des informations de débogage
+                user_groups = user.groups.values_list('name', flat=True)
+                print("User Groups:", user_groups)
+
+                # Redirection en fonction des groupes
+                if 'Gestionnaire' in user_groups:
+                    print("Redirecting to gestion:home")
                     return redirect("gestion:home")
+                elif 'Comptable' in user_groups:
+                    print("Redirecting to GRH:drh_view")
+                    return redirect("GRH:drh_view")
+                elif 'Assistant' in user_groups:
+                    print("Redirecting to accounts:dash_assistant")
+                    return redirect("accounts:dash_assistant")
+                elif 'Employer' in user_groups:
+                    print("Redirecting to employer:dash_employer")
+                    return redirect("employer:dash_employer")
+                else:
+                    print("Redirecting to client:home")
+                    return redirect("client:home")
+
             else:
                 msg = 'Identifiants invalides'
         else:
             msg = 'Données du formulaire non valides. Veuillez vérifier vos saisies.'
 
-    return render(request, "accounts/login.html", {"form": form, "msg": msg})
+    # Récupérer la valeur de 'next' de la requête
+    next_url = request.POST.get('next', request.GET.get('next', ''))
+
+    return render(request, "accounts/login.html", {"form": form, "msg": msg, "next_url": next_url})
+
+
+
+
 
 def logout(request):
     return render(request, 'accounts/logout.html')
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='Gestionnaire').exists())
-def dash_gestionnaire(request):
-    produits = Produit.objects.all()
-    quantite_produit = Stock.objects.all()
-    context ={
-        'produits': produits,
-        'quantite_produit':quantite_produit
-    }
-    return render(request, 'gestion/dash_gestionnaire.html', context)
-
-
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='Comptable').exists())
-def dash_comptable(request):
-    return render(request, 'gestion/dash_comptable.html')
-
-
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='Assistant').exists())
-def dash_assistant(request):
-    return render(request, 'gestion/dash_assistant.html')
+def custom_page_not_found(request, unknown_path):
+    return render(request, 'gestion/404.html', {'unknown_path': unknown_path}, status=404)

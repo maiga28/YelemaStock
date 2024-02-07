@@ -1,3 +1,11 @@
+
+ # Assurez-vous d'ajuster le chemin en fonction de la structure de votre projet
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required, user_passes_test
+from main_apps.stock.models import Produit,Stock
+
+
+
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
