@@ -33,17 +33,20 @@ def send_verification_email(request, user):
 
 @login_required
 def verify_email(request, user_id, token):
-    if request.user.email_verified:
-        # L'e-mail est déjà vérifié, redirigez l'utilisateur vers une page appropriée
-        return redirect('gestion:home')  # Remplacez 'home' par le nom de votre vue d'accueil
+    try:
+        user_id = force_str(urlsafe_base64_decode(user_id))
+        user = User.objects.get(pk=user_id)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
 
-    if request.method == 'POST':
-        # Marquer l'e-mail comme vérifié
-        request.user.email_verified = True
-        request.user.save()
-        return redirect('gestion:home')  # Remplacez 'home' par le nom de votre vue d'accueil
+    if user is not None and default_token_generator.check_token(user, token):
 
-    return HttpResponse(f"Verification for user {user_id} with token {token}")
+        user.email_verified = True
+        user.save()
+        return redirect('gestion:home')  
+
+    return HttpResponseNotFound("Invalid verification link")
+
 
 def register(request):
     msg = None

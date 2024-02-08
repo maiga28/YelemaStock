@@ -22,13 +22,24 @@ from .models import Employer, Poste
 from django.contrib.auth.decorators import login_required
 
 from rolepermissions.decorators import has_role_decorator
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import get_user_model
 
-
-@has_role_decorator('Employer')
+User = get_user_model()
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='Gestionnaire').exists() or u.groups.filter(name='Employer').exists())
 def dash_employer(request):
-    
-    employer = get_object_or_404(Employer, username=request.user.username)
-    postes = Poste.objects.filter(employer=employer)
+    # Récupérer l'employeur associé à l'utilisateur connecté
+    try:
+        employer = Employer.objects.get(username=request.user.username)
+    except Employer.DoesNotExist:
+        employer = None
+
+    # Si l'employeur est trouvé, récupérer les postes associés
+    if employer:
+        postes = Poste.objects.filter(employer=employer)
+    else:
+        postes = None
 
     context = {
         'user': request.user,
@@ -37,6 +48,8 @@ def dash_employer(request):
     }
 
     return render(request, 'employer/dash_employer.html', context)
+
+
 
 
 
